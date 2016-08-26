@@ -1,7 +1,9 @@
 # hot
 
-Auto build and run Golang project when source files are modified.
-![Build Status](./build.png)
+<img width="100" src="./build.png"/><br/>
 
-<img style="width:300px;" src="./icon.png">
+Auto build and run Golang project when source files are modified.
+
+
+<img width="600" src="./icon.png"/>
 

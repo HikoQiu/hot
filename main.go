@@ -50,6 +50,7 @@ func main() {
 			select {
 			case event := <-watcher.Events:
 
+                        // @TODO Add new dir 
 				if !checkIfWatchExt(event.Name) {
 					continue
 				}

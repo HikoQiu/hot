@@ -34,6 +34,12 @@ func readConfFields(args *Args) *Conf {
 		os.Exit(-1)
 	}
 
+	// Whether list all apps
+	if args.ListAll {
+		listAllApps(c)
+		os.Exit(0)
+	}
+
 	// Check app
 	checkApp(c, args.App)
 
@@ -74,5 +80,15 @@ func checkApp(c *config.Config, app string) {
 	if !existApp {
 		util.ColorPrintln("[ERROR] [ " + app + " ] not found in config file", util.COLOR_FAIL)
 		os.Exit(-1)
+	}
+}
+
+func listAllApps(c *config.Config) {
+	for i, app := range c.Sections() {
+		if i == 0 {
+			// DEFAULT config, not app name
+			continue
+		}
+		util.ColorPrintln(fmt.Sprintf("[%d] %s", i - 1, app), util.COLOR_SUCC)
 	}
 }

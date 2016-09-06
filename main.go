@@ -14,12 +14,15 @@ import (
 	"fmt"
 	"hot/model"
 	"hot/util"
+	"time"
 )
 
 var (
 	cmd *exec.Cmd
 	state sync.Mutex
 	paths = make([]string, 0)
+
+	lastUpdateTime int64
 
 /**
  * autobuider cli parameters
@@ -49,13 +52,18 @@ func main() {
 		for {
 			select {
 			case event := <-watcher.Events:
-
-                        // @TODO Add new dir 
 				if !checkIfWatchExt(event.Name) {
 					continue
 				}
+
+			// 3 秒内不重复编译
+				if lastUpdateTime > time.Now().Unix() - 3 {
+					continue
+				}
+
+				lastUpdateTime = time.Now().Unix()
 				util.ColorPrintln("[INFO]" + event.String(), util.COLOR_INFO)
-				Autobuild(conf.MainFiles)
+				go Autobuild(conf.MainFiles)
 				if event.Op & fsnotify.Write == fsnotify.Write {
 					util.ColorPrintln("[INFO] modified file: " + event.Name + " - " + event.String(), util.COLOR_INFO)
 				}
@@ -65,14 +73,21 @@ func main() {
 		}
 	}()
 
-	paths = append(paths, conf.MonitorPath)
-	readDirs(conf.MonitorPath, &paths)
-	for _, p := range paths {
-		watcher.Add(p)
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
+	// 定时重刷所有目录
+	go func() {
+		for {
+			paths = make([]string, 0)
+			paths = append(paths, conf.MonitorPath)
+			readDirs(conf.MonitorPath, &paths)
+			for _, p := range paths {
+				watcher.Add(p)
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			time.Sleep(time.Second * 10)
+		}
+	}()
 
 	// Run app when autobuilder starts
 	Autobuild(conf.MainFiles)

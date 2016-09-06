@@ -26,7 +26,6 @@ func NewConf(args *Args) *Conf {
 }
 
 func readConfFields(args *Args) *Conf {
-	conf := new(Conf)
 	cfg := config.Config{}
 	c, err := config.ReadDefault(args.ConfigPath)
 	if err != nil {
@@ -44,6 +43,7 @@ func readConfFields(args *Args) *Conf {
 	checkApp(c, args.App)
 
 	// read config fields
+	conf := new(Conf)
 	conf.MonitorPath, _ = c.String(args.App, "MONITOR_PATH")
 	exts, _ := c.String(args.App, "WATCH_EXT")
 	conf.WatchExt = strings.Split(exts, ",")

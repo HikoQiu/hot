@@ -6,6 +6,7 @@ import (
 	"strings"
 	"os"
 	"fmt"
+	"log"
 )
 
 /**
@@ -26,7 +27,6 @@ func NewConf(args *Args) *Conf {
 }
 
 func readConfFields(args *Args) *Conf {
-	cfg := config.Config{}
 	c, err := config.ReadDefault(args.ConfigPath)
 	if err != nil {
 		util.ColorPrintln("[ERROR] " + err.Error(), util.COLOR_FAIL)
@@ -61,7 +61,7 @@ func readConfFields(args *Args) *Conf {
 	binDir, _ := c.String(args.App, "BIN_DIR")
 	conf.BinDir = strings.TrimRight(binDir, "/") + "/"
 	conf.MainFiles = strings.Split(mainFiles, ",")
-	conf.CmdArgs, _ = cfg.String(args.App, "CMD_ARGS")
+	conf.CmdArgs, err = c.String(args.App, "CMD_ARGS")
 
 	str := fmt.Sprintf("[INFO] Configs:\n- APP_NAME: %s\n- MONITOR_PATH: %s \n- GOPATH: %s \n- WATCH_EXT: %v \n- MAIN_FILES: %v\n- BIN_DIR: %s\n- CMD_ARGS: %s\n", conf.AppName, conf.MonitorPath, conf.GoPath, conf.WatchExt, conf.MainFiles, conf.BinDir, conf.CmdArgs)
 	util.ColorPrintln(str, util.COLOR_INFO)

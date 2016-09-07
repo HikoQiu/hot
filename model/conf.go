@@ -6,7 +6,6 @@ import (
 	"strings"
 	"os"
 	"fmt"
-	"log"
 )
 
 /**

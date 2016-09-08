@@ -215,8 +215,7 @@ func Start(binFile string) {
 	cmd = exec.Command(binFile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Args = append([]string{conf.CmdArgs})
-	//cmd.Env = append(os.Environ(), conf.Envs...)
+	cmd.Args = append([]string{binFile, conf.CmdArgs})
 
 	util.ColorPrintln("[EXEC] " + binFile + " " + strings.Join(cmd.Args, " ") + "", util.COLOR_WARNING)
 	go cmd.Run()

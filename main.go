@@ -7,7 +7,6 @@ import (
 	"path"
 	"os"
 	"os/exec"
-	"bytes"
 	"strings"
 	"runtime"
 	"sync"
@@ -126,51 +125,20 @@ func Autobuild(files []string) {
 
 	util.ColorPrintln("[INFO] Start to rebuild [ " + conf.AppName + " ]", util.COLOR_INFO)
 	cmdName := "go"
-	var err error
-	//if conf.GoInstall || conf.Gopm.Install {
-	if false {
-		icmd := exec.Command("go", "list", "./...")
-		buf := bytes.NewBuffer([]byte(""))
-		icmd.Stdout = buf
-		icmd.Env = append(os.Environ(), "GOGC=off")
-		err = icmd.Run()
-		if err == nil {
-			list := strings.Split(buf.String(), "\n")[1:]
-			for _, pkg := range list {
-				if len(pkg) == 0 {
-					continue
-				}
-				icmd = exec.Command(cmdName, "install", pkg)
-				icmd.Stdout = os.Stdout
-				icmd.Stderr = os.Stderr
-				icmd.Env = append(os.Environ(), "GOGC=off")
-				err = icmd.Run()
-				if err != nil {
-					break
-				}
-			}
-		}
+
+	if runtime.GOOS == "windows" {
+		conf.AppName += ".exe"
 	}
 
-	if err == nil {
-		if runtime.GOOS == "windows" {
-			conf.AppName += ".exe"
-		}
-
-		args := []string{"build"}
-		args = append(args, "-o", conf.AppName)
-		//if buildTags != "" {
-		//	args = append(args, "-tags", buildTags)
-		//}
-		args = append(args, files...)
-		bcmd := exec.Command(cmdName, args...)
-		bcmd.Env = append(os.Environ(), "GOGC=off")
-		bcmd.Stdout = os.Stdout
-		bcmd.Stderr = os.Stderr
-		util.ColorPrintln("[EXEC] " + cmdName + " " + strings.Join(args, " "), util.COLOR_WARNING)
-		err = bcmd.Run()
-	}
-
+	args := []string{"build"}
+	args = append(args, "-o", conf.AppName)
+	args = append(args, files...)
+	bcmd := exec.Command(cmdName, args...)
+	bcmd.Env = append(os.Environ(), "GOGC=off")
+	bcmd.Stdout = os.Stdout
+	bcmd.Stderr = os.Stderr
+	util.ColorPrintln("[EXEC] " + cmdName + " " + strings.Join(args, " "), util.COLOR_WARNING)
+	err := bcmd.Run()
 	if err != nil {
 		util.ColorPrintln("[ERROR] fail to build " + conf.AppName, util.COLOR_FAIL)
 		return
